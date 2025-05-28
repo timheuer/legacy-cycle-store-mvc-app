@@ -1,40 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
-
-
+using Microsoft.AspNetCore.Mvc;
 using AdventureWorks.Models;
 using AdventureWorks.Business;
-using System.Web.UI.HtmlControls;
-using System.IO;
-using System.Web.UI;
-
-
 
 namespace AdventureWorks.Controllers
 {
     public class SiteLayoutController : Controller
     {
-        public ActionResult HeaderLayout()
+        private readonly CategoryManager _categoryManager;
+
+        public SiteLayoutController(CategoryManager categoryManager)
         {
-            SiteLayoutModel Header = new SiteLayoutModel();           
-            return View(Header);
+            _categoryManager = categoryManager;
         }
 
-        public ActionResult FooterLayout()
+        public IActionResult HeaderLayout()
         {
-            SiteLayoutModel Footer = new SiteLayoutModel();
-            Footer.ProductCategories = CategoryManager.GetMainCategories();
-            return View(Footer);
+            SiteLayoutModel header = new SiteLayoutModel();           
+            return View(header);
         }
 
-        public ActionResult ContentLayout()
+        public async Task<IActionResult> FooterLayout()
         {
-            SiteLayoutModel Header = new SiteLayoutModel();
-            Header.ProductCategories = CategoryManager.GetMainCategories();
-            return View(Header);
+            SiteLayoutModel footer = new SiteLayoutModel();
+            footer.ProductCategories = await _categoryManager.GetMainCategoriesAsync();
+            return View(footer);
+        }
+
+        public async Task<IActionResult> ContentLayout()
+        {
+            SiteLayoutModel header = new SiteLayoutModel();
+            header.ProductCategories = await _categoryManager.GetMainCategoriesAsync();
+            return View(header);
         }
     }
 }
