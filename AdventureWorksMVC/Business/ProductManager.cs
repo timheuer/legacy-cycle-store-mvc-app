@@ -1,55 +1,39 @@
-using AdventureWorks.Business;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
-
-namespace EpicAdventureWorks
+namespace AdventureWorks.Business
 {
     /// <summary>
-    /// 
+    /// Contains methods related to products.
     /// </summary>
     public class ProductManager
     {
-        /// <summary>
-        /// Get Product's SubCategory
-        /// </summary>
-        /// <param name="categoryId"></param>
-        /// <returns></returns>
-        public static List<ProductCategory> GetCategory(int categoryId)
+        private readonly CycleStoreDbContext _context;
+
+        public ProductManager(CycleStoreDbContext context)
         {
-            List<ProductCategory> catList = null;
-            //catList = (from cat in Common.DataEntities.ProductCategory
-            //           where cat.ParentCategory.ProductCategoryID == categoryId
-            //           select cat).ToList();
-            return catList;
+            _context = context;
         }
 
         /// <summary>
-        /// Gets the name of the product by.
+        /// Gets the product by name.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        public static Product GetProductByName(string name)
+        public async Task<Product?> GetProductByNameAsync(string name)
         {
-            var product = from p in Common.DataEntities.Products
-                          where p.Name == name 
-                          select p;
-            return product.FirstOrDefault();
+            return await _context.Products
+                .FirstOrDefaultAsync(p => p.Name == name);
         }
 
         /// <summary>
-        /// Get product by categoryId
+        /// Get product by category
         /// </summary>
         /// <param name="category"></param>
         /// <returns></returns>
-        public static IQueryable<Product> GetProductByCategory(ProductSubcategory category)
+        public IQueryable<Product> GetProductByCategory(ProductSubcategory category)
         {
-            IQueryable<Product> prodList = null;
-            prodList = from p in Common.DataEntities.Products
-                       where p.ProductSubcategory.ProductSubcategoryID == category.ProductSubcategoryID
-                       select p;
-            return prodList;
+            return _context.Products
+                .Where(p => p.ProductSubcategoryID == category.ProductSubcategoryID);
         }
 
         /// <summary>
@@ -57,22 +41,10 @@ namespace EpicAdventureWorks
         /// </summary>
         /// <param name="prodId"></param>
         /// <returns></returns>
-        public static Product GetProductByProductId(int prodId)
+        public async Task<Product?> GetProductByProductIdAsync(int prodId)
         {
-            var prods = from p in Common.DataEntities.Product
-                        where p.ProductID == prodId
-                        select p;
-            return prods.FirstOrDefault();
-        }
-
-        public static Product GetProductByProductId(int prodId, Entities entities)
-        {
-            Product prod;
-            var prods = from p in entities.Product
-                        where p.ProductID == prodId
-                        select p;
-            prod = prods.FirstOrDefault();
-            return prod;
+            return await _context.Products
+                .FirstOrDefaultAsync(p => p.ProductID == prodId);
         }
 
         /// <summary>
@@ -80,14 +52,14 @@ namespace EpicAdventureWorks
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        public static List<string> GetProductColor(int categoryId)
+        public async Task<List<string>> GetProductColorsAsync(int categoryId)
         {
-            List<string> colorList = null;
-            colorList = (from p in Common.DataEntities.Product
-                         where p.Color != null && p.ProductSubcategory.ProductSubcategoryID == categoryId
-                         orderby p.Color
-                         select p.Color).Distinct().ToList();
-            return colorList;
+            return await _context.Products
+                .Where(p => p.Color != null && p.ProductSubcategoryID == categoryId)
+                .OrderBy(p => p.Color)
+                .Select(p => p.Color!)
+                .Distinct()
+                .ToListAsync();
         }
 
         /// <summary>
@@ -95,66 +67,29 @@ namespace EpicAdventureWorks
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        public static List<decimal?> GetProductWeight(int categoryId)
+        public async Task<List<decimal?>> GetProductWeightsAsync(int categoryId)
         {
-            List<decimal?> weightList = null;
-            weightList = (from p in Common.DataEntities.Product
-                          where p.ProductSubcategory.ProductSubcategoryID == categoryId
-                          && p.Weight != null
-                          orderby p.Weight
-                          select p.Weight).Distinct().ToList();
-            return weightList;
-        }
-
-        public static List<string> GetProductWeightString(int categoryId)
-        {
-            List<string> weightListStr = new List<string>();
-            List<decimal?> weightList = null;
-            weightList = (from p in Common.DataEntities.Product
-                          where p.ProductSubcategory.ProductSubcategoryID == categoryId
-                          && p.Weight != null
-                          orderby p.Weight
-                          select p.Weight).Distinct().ToList();
-            //weightListStr = weightList.ToString().ToList();
-            //for (int i = 0; i <= weightList.Count; i++)
-            //{
-            //    weightListStr.Add(new string
-            //    {
-            //        weightList[i].ToString()
-            //});
-            //}
-            return weightListStr;
+            return await _context.Products
+                .Where(p => p.ProductSubcategoryID == categoryId && p.Weight != null)
+                .OrderBy(p => p.Weight)
+                .Select(p => p.Weight)
+                .Distinct()
+                .ToListAsync();
         }
 
         /// <summary>
-        /// Get Product's Colors By category
+        /// Get Product's Sizes By category
         /// </summary>
         /// <param name="categoryId"></param>
         /// <returns></returns>
-        public static List<string> GetProductSize(int categoryId)
+        public async Task<List<string>> GetProductSizesAsync(int categoryId)
         {
-            List<string> sizeList = null;
-            sizeList = (from p in Common.DataEntities.Product
-                        where p.Size != null && p.ProductSubcategory.ProductSubcategoryID == categoryId
-                        orderby p.Size
-                        select p.Size).Distinct().ToList();
-            return sizeList;
-        }
-
-        /// <summary>
-        /// Get Product's Description
-        /// </summary>
-        /// <param name="descId"></param>
-        /// <returns></returns>
-        public static string GetProductDesc(int descId)
-        {
-            string desc = null;
-            var descList = from pd in Common.DataEntities.ProductDescription
-                           where pd.ProductDescriptionID == descId
-                           select pd.Description;
-            if (descList != null)
-                desc = descList.First();
-            return desc;
+            return await _context.Products
+                .Where(p => p.Size != null && p.ProductSubcategoryID == categoryId)
+                .OrderBy(p => p.Size)
+                .Select(p => p.Size!)
+                .Distinct()
+                .ToListAsync();
         }
     }
 }

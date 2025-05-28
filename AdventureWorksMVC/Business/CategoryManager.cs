@@ -1,53 +1,48 @@
-using AdventureWorks.Business;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace AdventureWorks.Business
 {
     /// <summary>
-    /// Contains methods with related to shopping cart. 
+    /// Contains methods related to categories.
     /// </summary>
     public class CategoryManager
     {
-        /// <summary>
-        /// Gets the categories.
-        /// </summary>
-        /// <param name="p">The p.</param>
-        /// <returns></returns>
-        public static List<ProductCategory> GetMainCategories()
+        private readonly CycleStoreDbContext _context;
+
+        public CategoryManager(CycleStoreDbContext context)
         {
-           var cats = from cat in Common.DataEntities.ProductCategories
-                       select cat;
-           return cats.ToList();
+            _context = context;
         }
 
         /// <summary>
-        /// Gets the name of the category by.
+        /// Gets the main categories.
         /// </summary>
-        /// <param name="name">The name.</param>
         /// <returns></returns>
-        public static ProductCategory GetCategoryByName(string name)
+        public async Task<List<ProductCategory>> GetMainCategoriesAsync()
         {
-            var cats = from cat in Common.DataEntities.ProductCategories
-                       where cat.Name == name
-                       select cat;
-            return cats.FirstOrDefault();
+            return await _context.ProductCategories.ToListAsync();
         }
 
         /// <summary>
-        /// Gets the name of the category by.
+        /// Gets the category by name.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <returns></returns>
-        public static ProductSubcategory GetProductSubcategoryByName(string name)
+        public async Task<ProductCategory?> GetCategoryByNameAsync(string name)
         {
-            var cats = from cat in Common.DataEntities.ProductSubcategories
-                       where cat.Name == name
-                       select cat;
-            return cats.FirstOrDefault();
+            return await _context.ProductCategories
+                .FirstOrDefaultAsync(cat => cat.Name == name);
         }
 
+        /// <summary>
+        /// Gets the product subcategory by name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        public async Task<ProductSubcategory?> GetProductSubcategoryByNameAsync(string name)
+        {
+            return await _context.ProductSubcategories
+                .FirstOrDefaultAsync(cat => cat.Name == name);
+        }
     }
 }

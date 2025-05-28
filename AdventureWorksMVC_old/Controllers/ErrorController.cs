@@ -1,19 +1,23 @@
-using Microsoft.AspNetCore.Mvc;
+using System.Web.Mvc;
 
 namespace AdventureWorks.Controllers
 {
     public class ErrorController : Controller
     {
-        public IActionResult Default()
+        //
+        // GET: /Error/
+
+        public ActionResult Default()
         {
             ViewBag.ErrMsg = "An error occurred while processing your request.";
             return View();
         }
 
-        public IActionResult GenericError()
+        public ActionResult GenericError()
         {
             ViewBag.ErrMsg = "An error occurred while processing your request.";
             return View();
         }
+
     }
 }

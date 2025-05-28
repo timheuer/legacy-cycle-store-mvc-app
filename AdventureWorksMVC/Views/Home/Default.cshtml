@@ -1,12 +1,11 @@
-﻿<script src="~/js/Default.js"></script>
 @{
     ViewBag.Title = "Legacy Cycles";
-    Layout = "~/Views/Shared/_SiteLayout.cshtml";
+    Layout = "_Layout";
 }
 
 <div id="homepage" class="">
     @ViewBag.ErrMsg
     <div class="content-mid">
-        @{Html.RenderAction("ContentLayout", "SiteLayout");}
+        @{await Html.RenderPartialAsync("~/Views/SiteLayout/ContentLayout.cshtml");}
     </div>
 </div>
